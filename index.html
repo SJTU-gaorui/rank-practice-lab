@@ -1,0 +1,2303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rank Practice Lab</title>
+<meta name="description" content="An undergraduate linear algebra practice lab on column rank, independent columns, and generating relations. No login, no tracking.">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%238d1f33'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='16' fill='%23fff' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+<style>
+/* Rank Practice Lab — academic, print-friendly, no external assets. */
+
+:root {
+  --paper: #f7f2e7;
+  --paper-raised: #fffdf7;
+  --ink: #1c1a16;
+  --ink-soft: #3a352d;
+  --muted: #615a4f;
+  --line: #d8cdb9;
+  --line-soft: #e8dfcd;
+  --crimson: #8d1f33;
+  --crimson-deep: #6b1626;
+  --crimson-wash: #f3e2e4;
+  --amber: #7a4d0c;
+  --amber-wash: #f8ecd6;
+  --green: #1d5e43;
+  --green-wash: #e4efe8;
+  --focus: #1f4f8f;
+  --radius: 14px;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", "Source Han Serif SC", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --mono: "SFMono-Regular", ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  background-image: radial-gradient(circle at 12% -10%, rgba(141, 31, 51, 0.07), transparent 45%),
+    radial-gradient(circle at 88% 0%, rgba(141, 31, 51, 0.04), transparent 40%);
+}
+
+.wrap {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+a {
+  color: var(--crimson);
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--crimson);
+  color: #fff;
+  padding: 10px 16px;
+  z-index: 20;
+}
+
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------ masthead ------------------------------ */
+
+.masthead {
+  padding: 54px 0 34px;
+  border-bottom: 1px solid var(--line);
+}
+
+.kicker {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  font-weight: 600;
+}
+
+.wordmark {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: 20px;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+
+.wordmark::after {
+  content: "";
+  display: inline-block;
+  width: 46px;
+  height: 1px;
+  background: var(--crimson);
+  vertical-align: middle;
+  margin-left: 14px;
+  opacity: 0.7;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(34px, 4.6vw, 58px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin: 0 0 20px;
+  max-width: 20ch;
+  font-weight: 600;
+}
+
+.lede {
+  max-width: 62ch;
+  font-size: clamp(17px, 1.5vw, 19px);
+  color: var(--ink-soft);
+  margin: 0 0 18px;
+}
+
+.reminder {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--crimson);
+  background: var(--crimson-wash);
+  color: var(--crimson-deep);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.reminder::before {
+  content: "\25C6";
+  font-size: 11px;
+}
+
+/* ------------------------------ seed bar ------------------------------ */
+
+.seedbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 14px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.seed-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.seed-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: auto;
+  align-self: center;
+  text-align: right;
+}
+
+.input,
+.textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.input:hover,
+.textarea:hover {
+  border-color: #c3b6a0;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.label {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ------------------------------ buttons ------------------------------ */
+
+.button {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+  background: transparent;
+  color: var(--ink);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button-primary {
+  background: var(--crimson);
+  color: #fff;
+  border-color: var(--crimson);
+}
+
+.button-primary:hover {
+  background: var(--crimson-deep);
+  border-color: var(--crimson-deep);
+}
+
+.button-quiet {
+  border-color: var(--line);
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+}
+
+.button-quiet:hover {
+  border-color: var(--crimson);
+  color: var(--crimson);
+}
+
+.button[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.button-small {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* ------------------------------ cards ------------------------------ */
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  padding: 34px 0 10px;
+}
+
+@media (min-width: 980px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+.card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 0 rgba(28, 26, 22, 0.03), 0 12px 30px -26px rgba(28, 26, 22, 0.5);
+  position: relative;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(90deg, var(--crimson), rgba(141, 31, 51, 0.15));
+}
+
+.card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  font-weight: 700;
+}
+
+.card-title {
+  font-family: var(--serif);
+  font-size: 25px;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.card-meta {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+/* ------------------------------ matrix ------------------------------ */
+
+.print-lines {
+  display: none;
+}
+
+.matrix-holder {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 0;
+  overflow-x: auto;
+}
+
+.matrix {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--mono);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 0;
+}
+
+.matrix tbody tr > :first-child {
+  border-left: 2px solid var(--ink);
+  border-radius: 0;
+}
+
+.matrix tbody tr > :last-child {
+  border-right: 2px solid var(--ink);
+  border-radius: 0;
+}
+
+.matrix thead th {
+  font-weight: 400;
+  padding: 0 0 4px;
+}
+
+.matrix tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.matrix-corner {
+  width: 26px;
+}
+
+.matrix .col-toggle {
+  font: inherit;
+  font-size: 12px;
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  margin: 0 2px;
+}
+
+.matrix .col-toggle:hover {
+  border-color: var(--crimson);
+  color: var(--crimson);
+}
+
+.matrix .col-toggle.is-selected {
+  background: var(--crimson);
+  border-color: var(--crimson);
+  color: #fff;
+}
+
+.matrix .row-head {
+  font-size: 11px;
+  color: #8d8577;
+  font-weight: 400;
+  padding-right: 8px;
+  text-align: right;
+  width: 24px;
+}
+
+.matrix-cell {
+  padding: 5px 8px;
+  text-align: right;
+  min-width: 2.4em;
+  border-radius: 4px;
+}
+
+.matrix-cell.is-selected {
+  background: var(--crimson-wash);
+  box-shadow: inset 0 0 0 1px rgba(141, 31, 51, 0.28);
+  color: var(--crimson-deep);
+  font-weight: 600;
+}
+
+/* ------------------------------ vectors ------------------------------ */
+
+.vector-holder {
+  padding: 2px 0;
+}
+
+.vectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  min-height: 34px;
+}
+
+.vectors-empty {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.vector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vector-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.vector-rows {
+  display: grid;
+  gap: 1px;
+  padding: 3px 7px;
+  border-left: 1.5px solid var(--ink);
+  border-right: 1.5px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: right;
+  color: var(--ink-soft);
+  background: #fbf7ee;
+}
+
+/* ------------------------------ fields ------------------------------ */
+
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.actions-note {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* ------------------------------ feedback ------------------------------ */
+
+.feedback {
+  display: none;
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  font-size: 14.5px;
+}
+
+.feedback.is-warn,
+.feedback.is-no,
+.feedback.is-yes {
+  display: block;
+}
+
+.feedback.is-warn {
+  background: var(--amber-wash);
+  border-color: #e6cfa4;
+  color: #4a3208;
+}
+
+.feedback.is-no {
+  background: #fbeaea;
+  border-color: #e7bfc3;
+  color: #5d1a22;
+}
+
+.feedback.is-yes {
+  background: var(--green-wash);
+  border-color: #b9d3c4;
+  color: #143d2b;
+}
+
+.feedback-head {
+  margin: 0;
+}
+
+.feedback-detail {
+  margin: 6px 0 0;
+}
+
+.feedback-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.relation {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed currentColor;
+  border-radius: 8px;
+}
+
+.relation-label {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.relation-line {
+  margin: 2px 0;
+  font-family: var(--mono);
+  font-size: 13.5px;
+}
+
+/* ------------------------------ hints ------------------------------ */
+
+.hints {
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.hints-head {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.hint {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.hint-index {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--crimson-wash);
+  color: var(--crimson-deep);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.hint-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------ toolbar ------------------------------ */
+
+.toolbar {
+  margin: 26px 0 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbf7ee;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.toolbar-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.status {
+  min-height: 20px;
+  font-size: 13px;
+  color: var(--crimson-deep);
+  margin: 6px 2px 0;
+}
+
+/* ------------------------------ reflection ------------------------------ */
+
+.reflection {
+  margin: 36px 0 0;
+  padding: 26px 0 8px;
+  border-top: 1px solid var(--line);
+}
+
+.reflection h2 {
+  font-family: var(--serif);
+  font-size: 24px;
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.reflection ol {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 8px;
+  max-width: 70ch;
+}
+
+.reflection li {
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------ footer ------------------------------ */
+
+.site-footer {
+  margin-top: 30px;
+  border-top: 1px solid var(--line);
+  padding: 24px 0 40px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.site-footer p {
+  margin: 0 0 10px;
+  max-width: 90ch;
+}
+
+.footer-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #7a7264;
+}
+
+/* ------------------------------ print ------------------------------ */
+
+@media print {
+  :root {
+    --paper: #fff;
+    --paper-raised: #fff;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+  }
+
+  .seedbar,
+  .toolbar,
+  .status,
+  .site-footer,
+  .skip-link,
+  .actions,
+  .feedback,
+  .hints,
+  .reflection,
+  .vector-holder {
+    display: none !important;
+  }
+
+  .masthead {
+    padding: 0 0 12pt;
+    border-bottom: 1.5pt solid #000;
+  }
+
+  .masthead::after {
+    content: "Name: ______________________________    Date: ______________";
+    display: block;
+    margin-top: 12pt;
+    font-size: 10pt;
+    color: #333;
+  }
+
+  .kicker,
+  .wordmark {
+    font-size: 9pt;
+  }
+
+  h1 {
+    font-size: 20pt;
+    margin-bottom: 6pt;
+  }
+
+  .lede {
+    font-size: 10pt;
+    margin-bottom: 6pt;
+  }
+
+  .reminder {
+    font-size: 10pt;
+    padding: 4pt 8pt;
+    background: none;
+    border-left: 2pt solid #000;
+    color: #000;
+  }
+
+  .cards {
+    display: block;
+    padding: 10pt 0 0;
+  }
+
+  .card {
+    display: block;
+    border: 1pt solid #999;
+    border-radius: 0;
+    box-shadow: none;
+    page-break-inside: avoid;
+    margin-bottom: 10pt;
+    padding: 10pt 12pt;
+  }
+
+  .card::before {
+    display: none;
+  }
+
+  .card-head {
+    margin-bottom: 6pt;
+  }
+
+  .card-title {
+    font-size: 15pt;
+  }
+
+  .fields {
+    display: none !important;
+  }
+
+  .print-lines {
+    display: flex;
+    gap: 24pt;
+    margin: 8pt 0 2pt;
+    font-size: 10pt;
+  }
+
+  .matrix-holder {
+    justify-content: flex-start;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .matrix {
+    font-size: 11pt;
+  }
+
+  .matrix-corner,
+  .matrix .col-toggle {
+    border: none !important;
+    background: none !important;
+    color: #000 !important;
+    font-size: 9pt;
+    width: auto;
+    height: auto;
+    padding: 0 4pt;
+  }
+
+  .matrix-cell,
+  .matrix-cell.is-selected {
+    color: #000 !important;
+    background: none !important;
+    box-shadow: none !important;
+    font-weight: 400 !important;
+  }
+
+  .matrix tbody tr > :first-child,
+  .matrix tbody tr > :last-child {
+    border-color: #000;
+  }
+
+  .card::after {
+    content: "";
+    display: block;
+    height: 34pt;
+    margin-top: 6pt;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 15pt, #bbb 15pt 15.5pt);
+  }
+}
+
+@media (max-width: 720px) {
+  .seed-meta {
+    margin-left: 0;
+    text-align: left;
+    width: 100%;
+  }
+
+  .masthead {
+    padding-top: 36px;
+  }
+
+  .wordmark::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#cards">Skip to the challenges</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="kicker">Linear Algebra &middot; Shaanxi Normal University</p>
+    <p class="wordmark">Rank Practice Lab</p>
+    <h1>Different numbers. The same challenge.</h1>
+    <p class="lede">Find each rank and select independent columns, numbered from 1. Explain how your selected columns generate the others.</p>
+    <p class="reminder">Rank counts independent generating directions.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="seedbar" id="seedbar" aria-label="Randomization and reproducibility">
+    <div class="seed-field">
+      <label class="label" for="seed-input">Set seed</label>
+      <input class="input" id="seed-input" name="seed" type="text" autocomplete="off" spellcheck="false" aria-describedby="seed-help">
+      <span class="visually-hidden" id="seed-help">The same seed and generator version reproduce the same three matrices on any device.</span>
+    </div>
+    <button class="button button-quiet button-small" type="button" id="load-seed">Load seed</button>
+    <button class="button button-quiet button-small" type="button" id="new-set">New set</button>
+    <button class="button button-quiet button-small" type="button" id="copy-link">Copy set link</button>
+    <span class="seed-meta" id="seed-meta" aria-live="polite"></span>
+  </section>
+
+  <section class="cards" id="cards" aria-label="Three rank challenges"></section>
+
+  <section class="toolbar" aria-label="Draft and export controls">
+    <span class="toolbar-label">Your work</span>
+    <button class="button button-quiet button-small" type="button" id="save-draft">Save draft</button>
+    <button class="button button-quiet button-small" type="button" id="restore-draft">Restore draft</button>
+    <button class="button button-quiet button-small" type="button" id="clear-draft">Clear local draft</button>
+    <button class="button button-quiet button-small" type="button" id="export-record">Export learning record</button>
+    <button class="button button-quiet button-small" type="button" id="print-sheet">Print worksheet</button>
+  </section>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <section class="reflection" aria-labelledby="reflection-title">
+    <h2 id="reflection-title">After the three challenges</h2>
+    <ol>
+      <li>What remains unchanged when the numbers change?</li>
+      <li>When the generating relations are harder to see, what systematic method could replace observation?</li>
+    </ol>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>AI-assisted question design. Verified randomized templates. Exact mathematical checks. No live AI call. Drafts stay in this browser.</p>
+    <p>Drafts and exported records are learning records, not secure examination records. Written reasoning is reviewed by a teacher or a peer; it is not graded by the software.</p>
+    <p class="footer-meta">Linear Algebra &middot; Shaanxi Normal University &middot; generator rpl-1.0.0</p>
+  </div>
+</footer>
+
+<script>
+/**
+ * Rank Practice Lab — deterministic generation and exact checking core.
+ *
+ * Runs unchanged in three environments:
+ *  - the browser (classic script, exposes globalThis.RPLCore),
+ *  - Node (CommonJS require, used by the test-suite),
+ *  - the self-contained offline.html build (inlined).
+ *
+ * Design notes
+ *  - Randomization only applies rank-preserving transforms (row/column
+ *    permutations, whole row/column sign flips) to fixed templates whose
+ *    column ranks are 1, 2 and 3 by construction.
+ *  - All arithmetic is exact: BigInt fractions for elimination, no floats.
+ *  - The PRNG is a documented, versioned mulberry32 stream keyed by
+ *    cyrb128(version + seed); identical inputs reproduce identical output.
+ */
+(function (root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.RPLCore = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const GENERATOR_VERSION = 'rpl-1.0.0';
+  const PRNG_ID = 'cyrb128+mulberry32/v1';
+
+  /* ------------------------------------------------------------------ *
+   * Deterministic PRNG
+   * ------------------------------------------------------------------ */
+
+  function cyrb128(str) {
+    let h1 = 1779033703;
+    let h2 = 3144134277;
+    let h3 = 1013904242;
+    let h4 = 2773480762;
+    for (let i = 0; i < str.length; i++) {
+      const k = str.charCodeAt(i);
+      h1 = h2 ^ Math.imul(h1 ^ k, 597399067);
+      h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
+      h3 = h4 ^ Math.imul(h3 ^ k, 951274213);
+      h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
+    }
+    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067);
+    h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
+    h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213);
+    h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
+    return [(h1 ^ h2 ^ h3 ^ h4) >>> 0, (h2 ^ h1) >>> 0, (h3 ^ h1) >>> 0, (h4 ^ h1) >>> 0];
+  }
+
+  function mulberry32(a) {
+    let state = a >>> 0;
+    return function next() {
+      state = (state + 0x6d2b79f5) >>> 0;
+      let t = state;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function makeRng(seed, version) {
+    const parts = cyrb128(String(version) + '\u0000' + String(seed));
+    // Fold the four words with multiplicative mixing: a plain XOR fold is
+    // constant for this hash family (the four outputs always XOR to zero).
+    const seedWord =
+      (parts[0] ^
+        Math.imul(parts[1], 0x9e3779b1) ^
+        Math.imul(parts[2], 0x85ebca6b) ^
+        Math.imul(parts[3], 0xc2b2ae35)) >>>
+      0;
+    const stream = mulberry32(seedWord);
+    // Discard a few values so nearby seeds do not share a long prefix.
+    stream();
+    stream();
+    stream();
+    return {
+      float: stream,
+      int(n) {
+        return Math.floor(stream() * n) % n;
+      },
+      pick(arr) {
+        return arr[Math.floor(stream() * arr.length) % arr.length];
+      },
+      sign() {
+        return stream() < 0.5 ? -1 : 1;
+      },
+      shuffle(arr) {
+        const out = arr.slice();
+        for (let i = out.length - 1; i > 0; i--) {
+          const j = Math.floor(stream() * (i + 1)) % (i + 1);
+          const tmp = out[i];
+          out[i] = out[j];
+          out[j] = tmp;
+        }
+        return out;
+      },
+    };
+  }
+
+  const SEED_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  function randomSeed() {
+    let raw = '';
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const buf = new Uint32Array(4);
+      crypto.getRandomValues(buf);
+      raw = Array.from(buf, (n) => n.toString(32)).join('');
+    } else {
+      raw = String(Math.random()).slice(2) + String(Date.now());
+    }
+    let out = '';
+    for (let i = 0; i < 8; i++) {
+      const code = raw.charCodeAt(i % raw.length) + i * 31;
+      out += SEED_ALPHABET[(code + i * 7) % SEED_ALPHABET.length];
+    }
+    return 'RPL-' + out;
+  }
+
+  function normalizeSeed(value) {
+    const text = String(value == null ? '' : value).trim();
+    return text.length ? text.slice(0, 64) : randomSeed();
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Exact rational arithmetic (BigInt)
+   * ------------------------------------------------------------------ */
+
+  function bigAbs(x) {
+    return x < 0n ? -x : x;
+  }
+
+  function bigGcd(a, b) {
+    let x = bigAbs(a);
+    let y = bigAbs(b);
+    while (y) {
+      const t = x % y;
+      x = y;
+      y = t;
+    }
+    return x;
+  }
+
+  function frac(n, d) {
+    let num = BigInt(n);
+    let den = BigInt(d == null ? 1 : d);
+    if (den === 0n) throw new Error('zero denominator');
+    if (den < 0n) {
+      num = -num;
+      den = -den;
+    }
+    const g = bigGcd(num, den) || 1n;
+    return { n: num / g, d: den / g };
+  }
+
+  const ZERO = frac(0n);
+  const ONE = frac(1n);
+
+  function fAdd(a, b) {
+    return frac(a.n * b.d + b.n * a.d, a.d * b.d);
+  }
+  function fSub(a, b) {
+    return frac(a.n * b.d - b.n * a.d, a.d * b.d);
+  }
+  function fMul(a, b) {
+    return frac(a.n * b.n, a.d * b.d);
+  }
+  function fDiv(a, b) {
+    return frac(a.n * b.d, a.d * b.n);
+  }
+  function fIsZero(a) {
+    return a.n === 0n;
+  }
+  function fEq(a, b) {
+    return a.n === b.n && a.d === b.d;
+  }
+  function fIsInt(a) {
+    return a.d === 1n;
+  }
+  function fjson(f) {
+    return { n: String(f.n), d: String(f.d) };
+  }
+
+  function fText(a) {
+    if (a.d === 1n) return String(a.n).replace('-', '\u2212');
+    return String(a.n).replace('-', '\u2212') + '/' + String(a.d);
+  }
+
+  /** Rank of the sub-matrix formed by `colIndices`, by exact elimination. */
+  function rankColumns(matrix, colIndices) {
+    const rows = matrix.length;
+    const cols = colIndices.length;
+    if (cols === 0) return 0;
+    const a = matrix.map(function (row) {
+      return colIndices.map(function (j) {
+        return frac(row[j]);
+      });
+    });
+    let rank = 0;
+    for (let c = 0; c < cols && rank < rows; c++) {
+      let pivot = -1;
+      for (let r = rank; r < rows; r++) {
+        if (!fIsZero(a[r][c])) {
+          pivot = r;
+          break;
+        }
+      }
+      if (pivot === -1) continue;
+      const tmp = a[rank];
+      a[rank] = a[pivot];
+      a[pivot] = tmp;
+      const p = a[rank][c];
+      for (let r = rank + 1; r < rows; r++) {
+        if (fIsZero(a[r][c])) continue;
+        const factor = fDiv(a[r][c], p);
+        for (let k = c; k < cols; k++) {
+          a[r][k] = fSub(a[r][k], fMul(factor, a[rank][k]));
+        }
+      }
+      rank += 1;
+    }
+    return rank;
+  }
+
+  function matrixRank(matrix) {
+    return rankColumns(
+      matrix,
+      matrix[0].map(function (_, i) {
+        return i;
+      }),
+    );
+  }
+
+  /** Solve A x = b exactly; returns null when A is singular. */
+  function solveExact(A, b) {
+    const n = A.length;
+    const aug = A.map(function (row, i) {
+      return row
+        .map(function (v) {
+          return frac(v);
+        })
+        .concat([frac(b[i])]);
+    });
+    for (let c = 0; c < n; c++) {
+      let pivot = -1;
+      for (let r = c; r < n; r++) {
+        if (!fIsZero(aug[r][c])) {
+          pivot = r;
+          break;
+        }
+      }
+      if (pivot === -1) return null;
+      const tmp = aug[c];
+      aug[c] = aug[pivot];
+      aug[pivot] = tmp;
+      const p = aug[c][c];
+      for (let k = c; k <= n; k++) aug[c][k] = fDiv(aug[c][k], p);
+      for (let r = 0; r < n; r++) {
+        if (r === c || fIsZero(aug[r][c])) continue;
+        const factor = aug[r][c];
+        for (let k = c; k <= n; k++) aug[r][k] = fSub(aug[r][k], fMul(factor, aug[c][k]));
+      }
+    }
+    return aug.map(function (row) {
+      return row[n];
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Templates
+   * ------------------------------------------------------------------ */
+
+  function buildM1(u, v) {
+    return u.map(function (ui) {
+      return v.map(function (vj) {
+        return ui * vj;
+      });
+    });
+  }
+
+  function buildM2(a, b, c) {
+    return [
+      [1, a, 0, b],
+      [0, 1, 1, c],
+      [1, a + 1, 1, b + c],
+    ];
+  }
+
+  function buildM3(a, b, c, d) {
+    return [
+      [1, a, 0, b],
+      [0, 1, 1, c],
+      [1, 0, 2, d],
+      [2, 2 * a + 1, 1, 2 * b + c],
+    ];
+  }
+
+  function applyTransforms(base, transforms) {
+    const rows = base.length;
+    const cols = base[0].length;
+    const out = [];
+    for (let r = 0; r < rows; r++) {
+      const row = [];
+      for (let c = 0; c < cols; c++) {
+        row.push(transforms.rowSign[r] * transforms.colSign[c] * base[transforms.rowPerm[r]][transforms.colPerm[c]]);
+      }
+      out.push(row);
+    }
+    return out;
+  }
+
+  function makeTransforms(rng, rows, cols) {
+    const range = function (n) {
+      const arr = [];
+      for (let i = 0; i < n; i++) arr.push(i);
+      return arr;
+    };
+    return {
+      rowPerm: rng.shuffle(range(rows)),
+      colPerm: rng.shuffle(range(cols)),
+      rowSign: range(rows).map(function () {
+        return rng.sign();
+      }),
+      colSign: range(cols).map(function () {
+        return rng.sign();
+      }),
+    };
+  }
+
+  /** Displayed index (0-based) of the original column `k`. */
+  function displayedColumn(transforms, k) {
+    return transforms.colPerm.indexOf(k);
+  }
+
+  function vectorOf(matrix, col) {
+    return matrix.map(function (row) {
+      return row[col];
+    });
+  }
+
+  function pickRowsWithNonzeroDet(matrix, cols, size) {
+    // Brute force over row subsets; matrices are tiny.
+    const rows = matrix.length;
+    const idx = [];
+    const chosen = [];
+
+    function detOf(rowIds) {
+      const square = rowIds.map(function (r) {
+        return cols.map(function (c) {
+          return frac(matrix[r][c]);
+        });
+      });
+      return determinant(square);
+    }
+
+    function walk(start) {
+      if (chosen.length === size) {
+        if (!fIsZero(detOf(chosen))) {
+          idx.push(chosen.slice());
+          return true;
+        }
+        return false;
+      }
+      for (let r = start; r < rows; r++) {
+        chosen.push(r);
+        if (walk(r + 1)) return true;
+        chosen.pop();
+      }
+      return false;
+    }
+
+    walk(0);
+    return idx[0] || null;
+  }
+
+  function determinant(square) {
+    const n = square.length;
+    const a = square.map(function (row) {
+      return row.slice();
+    });
+    let det = ONE;
+    for (let c = 0; c < n; c++) {
+      let pivot = -1;
+      for (let r = c; r < n; r++) {
+        if (!fIsZero(a[r][c])) {
+          pivot = r;
+          break;
+        }
+      }
+      if (pivot === -1) return ZERO;
+      if (pivot !== c) {
+        const tmp = a[c];
+        a[c] = a[pivot];
+        a[pivot] = tmp;
+        det = fSub(ZERO, det);
+      }
+      det = fMul(det, a[c][c]);
+      for (let r = c + 1; r < n; r++) {
+        if (fIsZero(a[r][c])) continue;
+        const factor = fDiv(a[r][c], a[c][c]);
+        for (let k = c; k < n; k++) a[r][k] = fSub(a[r][k], fMul(factor, a[c][k]));
+      }
+    }
+    return det;
+  }
+
+  /** Express column `target` as a combination of `basisCols` (same length 3). */
+  function expressInBasis(matrix, basisCols, target) {
+    const rows = pickRowsWithNonzeroDet(matrix, basisCols, basisCols.length);
+    if (!rows) return null;
+    const A = rows.map(function (r) {
+      return basisCols.map(function (c) {
+        return matrix[r][c];
+      });
+    });
+    const b = rows.map(function (r) {
+      return matrix[r][target];
+    });
+    return solveExact(A, b);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Task construction
+   * ------------------------------------------------------------------ */
+
+  function coefficientText(f) {
+    if (fIsInt(f)) return String(f.n).replace('-', '\u2212');
+    return fText(f);
+  }
+
+  /** Build "2·C1 − C3 + 0.5·C4" from exact fraction coefficients. */
+  function formatCombination(terms) {
+    let out = '';
+    let first = true;
+    for (const term of terms) {
+      if (fIsZero(term.coef)) continue;
+      const neg = term.coef.n < 0n;
+      const mag = fIsInt(term.coef)
+        ? String(term.coef.n < 0n ? -term.coef.n : term.coef.n)
+        : fText(frac(term.coef.n < 0n ? -term.coef.n : term.coef.n, term.coef.d));
+      const body = (mag === '1' ? '' : mag + '\u00b7') + 'C' + (term.col + 1);
+      if (first) {
+        out += (neg ? '\u2212' : '') + body;
+        first = false;
+      } else {
+        out += (neg ? ' \u2212 ' : ' + ') + body;
+      }
+    }
+    return out || '0';
+  }
+
+  function makeTask1(rng) {
+    const u = [rng.int(3) + 1, rng.int(3) + 1, rng.int(3) + 1];
+    const v = [rng.int(3) + 1, rng.int(3) + 1, rng.int(3) + 1];
+    const base = buildM1(u, v);
+    const transforms = makeTransforms(rng, 3, 3);
+    const matrix = applyTransforms(base, transforms);
+
+    // Any pair of columns is proportional; pick the first two displayed columns.
+    const i = 0;
+    const j = 1;
+    const ratio = frac(matrix[0][j], matrix[0][i]);
+    const relation = 'C' + (j + 1) + ' = ' + formatCombination([{ coef: ratio, col: i }]);
+    const ratioPhrase = fIsInt(ratio) && ratio.n === 1n
+      ? 'Column ' + (j + 1) + ' is exactly column ' + (i + 1) + '.'
+      : fIsInt(ratio) && ratio.n === -1n
+        ? 'Column ' + (j + 1) + ' is the negative of column ' + (i + 1) + '.'
+        : 'Column ' + (j + 1) + ' is ' + coefficientText(ratio) + ' times column ' + (i + 1) + '.';
+
+    return {
+      id: 'task1',
+      family: 'proportional columns',
+      title: 'See a pattern',
+      matrix: matrix,
+      rank: 1,
+      transforms: transforms,
+      template: { u: u, v: v },
+      preferredBasis: [displayedColumn(transforms, 0) + 1],
+      ratioPair: [i, j],
+      hints: [
+        'Compare columns ' + (i + 1) + ' and ' + (j + 1) + ' entry by entry. Do the ratios stay the same in every row?',
+        'Every column of this matrix is a multiple of column ' + (i + 1) + '. Find the multiplier for each of the other two columns.',
+        ratioPhrase + ' Which single nonzero column generates all three?',
+      ],
+      relations: [relation],
+      relationData: [{ lhsCoef: fjson(ONE), lhsCol: j, terms: [{ coef: fjson(ratio), col: i }] }],
+    };
+  }
+
+  function makeTask2(rng) {
+    const a = rng.int(3) + 1;
+    const b = rng.int(3) + 1;
+    const c = rng.int(3) + 1;
+    const base = buildM2(a, b, c);
+    const transforms = makeTransforms(rng, 3, 4);
+    const matrix = applyTransforms(base, transforms);
+
+    const d1 = displayedColumn(transforms, 0);
+    const d2 = displayedColumn(transforms, 1);
+    const d3 = displayedColumn(transforms, 2);
+    const d4 = displayedColumn(transforms, 3);
+
+    const coeff2 = expressInBasis(matrix, [d1, d3], d2) || [ZERO, ZERO];
+    const coeff4 = expressInBasis(matrix, [d1, d3], d4) || [ZERO, ZERO];
+
+    const rel2 = 'C' + (d2 + 1) + ' = ' + formatCombination([
+      { coef: coeff2[0], col: d1 },
+      { coef: coeff2[1], col: d3 },
+    ]);
+    const rel4 = 'C' + (d4 + 1) + ' = ' + formatCombination([
+      { coef: coeff4[0], col: d1 },
+      { coef: coeff4[1], col: d3 },
+    ]);
+
+    return {
+      id: 'task2',
+      family: 'generating pair',
+      title: 'Find generating columns',
+      matrix: matrix,
+      rank: 2,
+      transforms: transforms,
+      template: { a: a, b: b, c: c },
+      preferredBasis: [d1 + 1, d3 + 1],
+      hints: [
+        'Columns ' + (d1 + 1) + ' and ' + (d3 + 1) + ' do not look proportional. Test whether they could serve as generating columns.',
+        'Check that columns ' + (d2 + 1) + ' and ' + (d4 + 1) + ' can both be written using only columns ' + (d1 + 1) + ' and ' + (d3 + 1) + '.',
+        'One relation is ' + rel2 + '. Find the matching relation for column ' + (d4 + 1) + ', then explain what these relations say about how many independent columns there can be.',
+      ],
+      relations: [rel2, rel4],
+      relationData: [
+        { lhsCoef: fjson(ONE), lhsCol: d2, terms: [{ coef: fjson(coeff2[0]), col: d1 }, { coef: fjson(coeff2[1]), col: d3 }] },
+        { lhsCoef: fjson(ONE), lhsCol: d4, terms: [{ coef: fjson(coeff4[0]), col: d1 }, { coef: fjson(coeff4[1]), col: d3 }] },
+      ],
+    };
+  }
+
+  function makeTask3(rng) {
+    const a = rng.int(3) + 1;
+    const b = rng.int(3) + 1;
+    const c = rng.int(3) + 1;
+    const d = rng.int(3) + 1;
+    const base = buildM3(a, b, c, d);
+    const transforms = makeTransforms(rng, 4, 4);
+    const matrix = applyTransforms(base, transforms);
+
+    const d1 = displayedColumn(transforms, 0);
+    const d2 = displayedColumn(transforms, 1);
+    const d3 = displayedColumn(transforms, 2);
+    const d4 = displayedColumn(transforms, 3);
+
+    const lam = expressInBasis(matrix, [d1, d2, d3], d4) || [ZERO, ZERO, ZERO];
+    const k = BigInt(a + 2);
+    const p = frac(lam[0].n * k, lam[0].d);
+    const q = frac(lam[1].n * k, lam[1].d);
+    const r = frac(lam[2].n * k, lam[2].d);
+
+    const basisOrder = [d1, d2, d3].slice().sort(function (x, y) {
+      return x - y;
+    });
+    const termFor = {};
+    termFor[d1] = p;
+    termFor[d2] = q;
+    termFor[d3] = r;
+    const relation =
+      '(' + String(a + 2) + ')\u00b7C' + (d4 + 1) + ' = ' + formatCombination(
+        basisOrder.map(function (col) {
+          return { coef: termFor[col], col: col };
+        }),
+      );
+
+    const hintRows = pickRowsWithNonzeroDet(matrix, [d1, d2, d3], 3) || [0, 1, 2];
+    const hintDet = determinant(
+      hintRows.map(function (row) {
+        return basisOrder.map(function (col) {
+          return frac(matrix[row][col]);
+        });
+      }),
+    );
+    const lambdaSum = basisOrder
+      .map(function (col, i) {
+        return '\u03bb' + '\u2081\u2082\u2083'[i] + 'C' + (col + 1);
+      })
+      .join(' + ');
+
+    return {
+      id: 'task3',
+      family: 'organized calculation',
+      title: 'Organize the calculation',
+      matrix: matrix,
+      rank: 3,
+      transforms: transforms,
+      template: { a: a, b: b, c: c, d: d },
+      preferredBasis: [d1 + 1, d2 + 1, d3 + 1],
+      hints: [
+        'Start with columns ' + basisOrder.map(function (c) { return c + 1; }).join(', ') +
+          '. Do not trust your eyes: test them with ' + lambdaSum + ' = 0.',
+        'Reading that equation in rows ' + hintRows.map(function (r2) { return r2 + 1; }).join(', ') +
+          ' gives a 3\u00d73 coefficient matrix whose determinant is ' + fText(hintDet) +
+          ', not zero, so all three coefficients must vanish.',
+        'Multiply column ' + (d4 + 1) + ' by ' + String(a + 2) + ' to keep everything integral: ' + relation + '. Use this to explain the rank.',
+      ],
+      relations: [relation],
+      relationData: [
+        {
+          lhsCoef: fjson(frac(a + 2)),
+          lhsCol: d4,
+          terms: [{ coef: fjson(p), col: d1 }, { coef: fjson(q), col: d2 }, { coef: fjson(r), col: d3 }],
+        },
+      ],
+    };
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Public generation entry
+   * ------------------------------------------------------------------ */
+
+  function generate(seedInput, options) {
+    const opts = options || {};
+    const version = opts.version || GENERATOR_VERSION;
+    const seed = normalizeSeed(seedInput);
+    const rng = makeRng(seed, version);
+    const tasks = [makeTask1(rng), makeTask2(rng), makeTask3(rng)];
+    for (const task of tasks) {
+      task.generatorVersion = version;
+      task.seed = seed;
+      task.rows = task.matrix.length;
+      task.cols = task.matrix[0].length;
+    }
+    return {
+      seed: seed,
+      generatorVersion: version,
+      prng: PRNG_ID,
+      tasks: tasks,
+    };
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Exact checking
+   * ------------------------------------------------------------------ */
+
+  function parseColumns(text, cols) {
+    const raw = String(text == null ? '' : text).trim();
+    if (!raw) return { error: 'Enter at least one column number, for example 1, 3.' };
+    const cleaned = raw.replace(/[;、]/g, ',');
+    const parts = cleaned.split(',').map(function (p) {
+      return p.trim();
+    });
+    if (parts.some(function (p) { return p === ''; })) {
+      return { error: 'Column numbers must be separated by commas, for example 1, 3.' };
+    }
+    if (parts.length > cols) {
+      return { error: 'You listed more column numbers than this matrix has columns.' };
+    }
+    const out = [];
+    for (const part of parts) {
+      if (!/^[+-]?\d+$/.test(part)) {
+        return { error: 'Use whole numbers only for column numbers, for example 1, 3.' };
+      }
+      const n = parseInt(part, 10);
+      if (!Number.isInteger(n) || n < 1 || n > cols) {
+        return { error: 'Column numbers must be between 1 and ' + cols + ' for this matrix.' };
+      }
+      out.push(n);
+    }
+    return { columns: out };
+  }
+
+  function check(task, input) {
+    const cols = task.cols;
+    const selectedRaw = parseColumns(input.columns, cols);
+    const reasoning = String(input.reasoning == null ? '' : input.reasoning).trim();
+    const rankText = String(input.rank == null ? '' : input.rank).trim();
+
+    if (!/^[+-]?\d+$/.test(rankText)) {
+      return {
+        status: 'invalid',
+        message: 'Enter your proposed rank as a whole number.',
+        detail: 'The rank field must contain one integer.',
+      };
+    }
+    const rank = parseInt(rankText, 10);
+    if (selectedRaw.error) {
+      return { status: 'invalid', message: selectedRaw.error, detail: 'Check the column list.' };
+    }
+    const selected = selectedRaw.columns;
+    const seen = new Set();
+    for (const c of selected) {
+      if (seen.has(c)) {
+        return {
+          status: 'invalid',
+          message: 'Column ' + c + ' appears twice. Choose each column at most once.',
+          detail: 'Duplicate column numbers are not a valid set.',
+        };
+      }
+      seen.add(c);
+    }
+    if (reasoning.length < 12) {
+      return {
+        status: 'reasoning',
+        message: 'Before checking, write a short justification in the reasoning box.',
+        detail: 'A written attempt is required. It is reviewed by your teacher or a peer; it is not graded automatically.',
+      };
+    }
+
+    const idx = selected.map(function (c) { return c - 1; });
+    const selectedRank = rankColumns(task.matrix, idx);
+    const actualRank = task.rank;
+
+    if (rank !== actualRank) {
+      return {
+        status: 'rank',
+        message: 'Your rank is not correct yet.',
+        detail: 'Look again at how many independent directions the columns actually provide. Try a smaller or larger candidate, then justify it.',
+      };
+    }
+    if (selected.length !== actualRank) {
+      return {
+        status: 'count',
+        message: 'Your rank is correct. Your column count is not.',
+        detail:
+          'You selected ' + selected.length + ' column' + (selected.length === 1 ? '' : 's') +
+          ', but an independent generating set for this matrix needs exactly ' + actualRank + '.',
+      };
+    }
+    if (selectedRank !== selected.length) {
+      return {
+        status: 'dependent',
+        message: 'Your rank is correct, but the columns you picked are dependent.',
+        detail: 'Columns ' + selected.join(', ') + ' do not form an independent set. Replace at least one of them and test again.',
+      };
+    }
+    return {
+      status: 'valid',
+      message: 'Your rank and selected columns are correct. Now check that your explanation justifies independence and generation.',
+      detail: '',
+      relation: task.relations.join('  |  '),
+    };
+  }
+
+  /** Structured record used by export and tests. */
+  function exportRecord(set, answers, extra) {
+    const state = answers || {};
+    return {
+      kind: 'rank-practice-lab-record',
+      note: 'Learning record only. It is not a secure examination record; written reasoning is reviewed by a teacher or peer.',
+      generatorVersion: set.generatorVersion,
+      prng: set.prng,
+      seed: set.seed,
+      exportedAt: (extra && extra.exportedAt) || new Date().toISOString(),
+      tasks: set.tasks.map(function (task) {
+        const answer = state[task.id] || {};
+        return {
+          id: task.id,
+          title: task.title,
+          rows: task.rows,
+          cols: task.cols,
+          matrix: task.matrix,
+          submittedRank: answer.rank == null ? null : String(answer.rank),
+          submittedColumns: answer.columns == null ? '' : String(answer.columns),
+          reasoning: answer.reasoning == null ? '' : String(answer.reasoning),
+          hintsUsed: answer.hintsUsed || 0,
+          lastFeedback: answer.feedback || null,
+        };
+      }),
+    };
+  }
+
+  return {
+    GENERATOR_VERSION: GENERATOR_VERSION,
+    PRNG_ID: PRNG_ID,
+    randomSeed: randomSeed,
+    normalizeSeed: normalizeSeed,
+    generate: generate,
+    check: check,
+    exportRecord: exportRecord,
+    parseColumns: parseColumns,
+    // exposed for the independent test-suite
+    _exact: {
+      frac: frac,
+      rankColumns: rankColumns,
+      matrixRank: matrixRank,
+      solveExact: solveExact,
+      determinant: determinant,
+      fText: fText,
+      fIsInt: fIsInt,
+    },
+  };
+});
+
+</script>
+<script>
+/**
+ * Rank Practice Lab — browser UI.
+ * Depends only on core.js (global RPLCore). No network, no frameworks.
+ */
+(function () {
+  'use strict';
+
+  const CORE = window.RPLCore;
+  const STORAGE_KEY = 'rpl.draft.v1';
+  const DRAFT_NOTE = 'Drafts stay in this browser. They are a learning record, not a secure examination record.';
+
+  const state = {
+    seed: '',
+    set: null,
+    answers: {},
+    storageOk: true,
+    statusLine: '',
+  };
+
+  /* ------------------------------ helpers ------------------------------ */
+
+  function el(tag, props, children) {
+    const node = document.createElement(tag);
+    if (props) {
+      for (const key of Object.keys(props)) {
+        const value = props[key];
+        if (value == null || value === false) continue;
+        if (key === 'class') node.className = value;
+        else if (key === 'text') node.textContent = value;
+        else if (key === 'html') node.innerHTML = value; // only for trusted static markup
+        else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2), value);
+        else if (key === 'dataset') Object.assign(node.dataset, value);
+        else if (value === true) node.setAttribute(key, '');
+        else node.setAttribute(key, value);
+      }
+    }
+    if (children) {
+      for (const child of [].concat(children)) {
+        if (child == null) continue;
+        node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
+      }
+    }
+    return node;
+  }
+
+  function readStorage(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (error) {
+      state.storageOk = false;
+      return null;
+    }
+  }
+
+  function writeStorage(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      state.storageOk = false;
+      return false;
+    }
+  }
+
+  function removeStorage(key) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch (error) {
+      state.storageOk = false;
+    }
+  }
+
+  function parseHash() {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (!hash) return null;
+    const params = new URLSearchParams(hash);
+    const seed = params.get('seed');
+    if (!seed) return null;
+    return { seed: seed, version: params.get('v') || CORE.GENERATOR_VERSION };
+  }
+
+  function setHash(seed) {
+    const target = '#seed=' + encodeURIComponent(seed) + '&v=' + encodeURIComponent(state.set.generatorVersion);
+    if (window.location.hash !== target) {
+      try {
+        window.history.replaceState(null, '', target);
+      } catch (error) {
+        window.location.hash = target;
+      }
+    }
+  }
+
+  function emptyAnswer() {
+    return { rank: '', columns: '', reasoning: '', hintsUsed: 0, feedback: null };
+  }
+
+  function resetAnswers() {
+    state.answers = {};
+    for (const task of state.set.tasks) state.answers[task.id] = emptyAnswer();
+  }
+
+  /* ------------------------------ matrix ------------------------------ */
+
+  function renderMatrix(task, card) {
+    const selected = parseSelected(task);
+    const table = el('table', { class: 'matrix' });
+    const thead = el('thead');
+    const headRow = el('tr');
+    headRow.appendChild(el('th', { class: 'matrix-corner', scope: 'col', text: '' }));
+    for (let c = 0; c < task.cols; c++) {
+      const isOn = selected.indexOf(c + 1) !== -1;
+      const button = el('button', {
+        type: 'button',
+        class: 'col-toggle' + (isOn ? ' is-selected' : ''),
+        'aria-pressed': isOn ? 'true' : 'false',
+        'aria-label': 'Column ' + (c + 1) + (isOn ? ', selected' : ', not selected'),
+        text: String(c + 1),
+      });
+      button.addEventListener('click', function () {
+        toggleColumn(task, c + 1);
+      });
+      headRow.appendChild(el('th', { scope: 'col' }, [button]));
+    }
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = el('tbody');
+    for (let r = 0; r < task.rows; r++) {
+      const row = el('tr');
+      row.appendChild(el('th', { scope: 'row', class: 'row-head', text: String(r + 1) }));
+      for (let c = 0; c < task.cols; c++) {
+        const on = selected.indexOf(c + 1) !== -1;
+        row.appendChild(
+          el('td', {
+            class: 'matrix-cell' + (on ? ' is-selected' : ''),
+            text: String(task.matrix[r][c]).replace('-', '\u2212'),
+          }),
+        );
+      }
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+
+  function parseSelected(task) {
+    const answer = state.answers[task.id];
+    const parsed = CORE.parseColumns(answer.columns, task.cols);
+    return parsed.error ? [] : parsed.columns;
+  }
+
+  function toggleColumn(task, column) {
+    const answer = state.answers[task.id];
+    const current = parseSelected(task);
+    const index = current.indexOf(column);
+    const next = index === -1 ? current.concat([column]).sort(function (a, b) { return a - b; }) : current.filter(function (c) { return c !== column; });
+    answer.columns = next.join(', ');
+    updateCard(task);
+  }
+
+  function renderVectors(task) {
+    const selected = parseSelected(task);
+    const wrap = el('div', { class: 'vectors' });
+    if (!selected.length) {
+      wrap.appendChild(el('p', { class: 'vectors-empty', text: 'Selected columns appear here.' }));
+      return wrap;
+    }
+    for (const c of selected) {
+      const column = task.matrix.map(function (row) { return row[c - 1]; });
+      const group = el('div', { class: 'vector' });
+      group.appendChild(el('span', { class: 'vector-label', text: 'C' + c }));
+      const rows = el('div', { class: 'vector-rows' });
+      for (const value of column) {
+        rows.appendChild(el('span', { class: 'vector-entry', text: String(value).replace('-', '\u2212') }));
+      }
+      group.appendChild(rows);
+      wrap.appendChild(group);
+    }
+    return wrap;
+  }
+
+  /* ------------------------------ feedback ------------------------------ */
+
+  const STATUS_TONE = {
+    invalid: 'warn',
+    reasoning: 'warn',
+    rank: 'no',
+    count: 'no',
+    dependent: 'no',
+    valid: 'yes',
+  };
+
+  function renderFeedback(task, node) {
+    const answer = state.answers[task.id];
+    node.textContent = '';
+    if (!answer.feedback) return;
+
+    const feedback = answer.feedback;
+    const tone = STATUS_TONE[feedback.status] || 'warn';
+    const label = feedback.status === 'valid' ? 'Correct' : feedback.status === 'invalid' || feedback.status === 'reasoning' ? 'Check input' : 'Not yet';
+
+    node.className = 'feedback is-' + tone;
+    node.appendChild(el('p', { class: 'feedback-head' }, [el('strong', { text: label + '. ' }), el('span', { text: feedback.message })]));
+    if (feedback.detail) node.appendChild(el('p', { class: 'feedback-detail', text: feedback.detail }));
+
+    if (feedback.status === 'valid') {
+      node.appendChild(el('p', { class: 'feedback-note', text: 'Written reasoning is reviewed by your teacher or a peer. It is not graded automatically.' }));
+      if (feedback.relation) {
+        const rel = el('div', { class: 'relation' });
+        rel.appendChild(el('span', { class: 'relation-label', text: 'Generating relation' }));
+        for (const line of feedback.relation.split('  |  ')) {
+          rel.appendChild(el('p', { class: 'relation-line', text: line }));
+        }
+        node.appendChild(rel);
+      }
+    }
+  }
+
+  /* ------------------------------ hints ------------------------------ */
+
+  function renderHints(task, node) {
+    const answer = state.answers[task.id];
+    node.textContent = '';
+    if (!answer.hintsUsed) {
+      node.hidden = true;
+      return;
+    }
+    node.hidden = false;
+    node.appendChild(el('p', { class: 'hints-head', text: 'Hints ' + answer.hintsUsed + ' of 3' }));
+    for (let i = 0; i < answer.hintsUsed; i++) {
+      const item = el('div', { class: 'hint' });
+      item.appendChild(el('span', { class: 'hint-index', text: String(i + 1) }));
+      item.appendChild(el('p', { class: 'hint-text', text: task.hints[i] }));
+      node.appendChild(item);
+    }
+  }
+
+  /* ------------------------------ card ------------------------------ */
+
+  function buildCard(task, index) {
+    const card = el('article', { class: 'card', dataset: { task: task.id } });
+    card.appendChild(
+      el('header', { class: 'card-head' }, [
+        el('p', { class: 'eyebrow', text: 'Task ' + (index + 1) }),
+        el('h2', { class: 'card-title', text: task.title }),
+        el('p', { class: 'card-meta', text: task.rows + ' \u00d7 ' + task.cols + ' matrix \u00b7 columns numbered from 1' }),
+      ]),
+    );
+
+    const matrixHolder = el('div', { class: 'matrix-holder' });
+    card.appendChild(matrixHolder);
+
+    const vectorHolder = el('div', { class: 'vector-holder' });
+    card.appendChild(vectorHolder);
+
+    card.appendChild(
+      el('div', { class: 'print-lines', 'aria-hidden': 'true' }, [
+        el('span', { class: 'print-line', text: 'Proposed rank: ________________' }),
+        el('span', { class: 'print-line', text: 'Independent columns: ______________________' }),
+      ]),
+    );
+
+    const answer = state.answers[task.id];
+
+    const rankInput = el('input', {
+      type: 'number',
+      inputmode: 'numeric',
+      min: '1',
+      max: '4',
+      step: '1',
+      id: task.id + '-rank',
+      class: 'input',
+      value: answer.rank,
+      autocomplete: 'off',
+    });
+    const columnsInput = el('input', {
+      type: 'text',
+      id: task.id + '-columns',
+      class: 'input',
+      value: answer.columns,
+      placeholder: 'e.g. 1, 3',
+      autocomplete: 'off',
+      spellcheck: 'false',
+    });
+    const reasoning = el('textarea', {
+      id: task.id + '-reasoning',
+      class: 'input textarea',
+      rows: '4',
+      placeholder: 'Explain why your columns are independent and how they generate the others.',
+      spellcheck: 'true',
+    });
+    reasoning.value = answer.reasoning;
+
+    rankInput.addEventListener('input', function () {
+      answer.rank = rankInput.value;
+    });
+    columnsInput.addEventListener('input', function () {
+      answer.columns = columnsInput.value;
+      updateCard(task);
+    });
+    reasoning.addEventListener('input', function () {
+      answer.reasoning = reasoning.value;
+    });
+
+    const fields = el('div', { class: 'fields' }, [
+      el('div', { class: 'field' }, [
+        el('label', { for: task.id + '-rank', class: 'label', text: 'Proposed rank' }),
+        rankInput,
+      ]),
+      el('div', { class: 'field' }, [
+        el('label', { for: task.id + '-columns', class: 'label', text: 'Independent columns' }),
+        columnsInput,
+      ]),
+      el('div', { class: 'field field-wide' }, [
+        el('label', { for: task.id + '-reasoning', class: 'label', text: 'Reasoning' }),
+        reasoning,
+      ]),
+    ]);
+    card.appendChild(fields);
+
+    const checkButton = el('button', { type: 'button', class: 'button button-primary', text: 'Check my work' });
+    const hintButton = el('button', { type: 'button', class: 'button button-quiet', text: 'Need a hint?' });
+    checkButton.addEventListener('click', function () {
+      const verdict = CORE.check(task, {
+        rank: answer.rank,
+        columns: answer.columns,
+        reasoning: answer.reasoning,
+      });
+      answer.feedback = {
+        status: verdict.status,
+        message: verdict.message,
+        detail: verdict.detail,
+        relation: verdict.relation,
+      };
+      renderFeedback(task, card.querySelector('.feedback'));
+      card.classList.add('has-checked');
+    });
+    hintButton.addEventListener('click', function () {
+      if (answer.hintsUsed >= 3) return;
+      answer.hintsUsed += 1;
+      renderHints(task, card.querySelector('.hints'));
+      hintButton.textContent = answer.hintsUsed >= 3 ? 'All hints shown' : 'Show next hint';
+      hintButton.disabled = answer.hintsUsed >= 3;
+    });
+
+    if (answer.hintsUsed) {
+      hintButton.textContent = answer.hintsUsed >= 3 ? 'All hints shown' : 'Show next hint';
+      hintButton.disabled = answer.hintsUsed >= 3;
+    }
+
+    card.appendChild(el('div', { class: 'actions' }, [checkButton, hintButton, el('span', { class: 'actions-note', text: 'Reasoning is reviewed by your teacher or a peer.' })]));
+
+    const feedback = el('div', { class: 'feedback', role: 'status', 'aria-live': 'polite' });
+    card.appendChild(feedback);
+    const hints = el('div', { class: 'hints', 'aria-live': 'polite', hidden: true });
+    card.appendChild(hints);
+
+    card._parts = { matrixHolder: matrixHolder, vectorHolder: vectorHolder, feedback: feedback, hints: hints, rankInput: rankInput, columnsInput: columnsInput };
+    return card;
+  }
+
+  function updateCard(task) {
+    const card = document.querySelector('.card[data-task="' + task.id + '"]');
+    if (!card || !card._parts) return;
+    const parts = card._parts;
+    parts.matrixHolder.textContent = '';
+    parts.matrixHolder.appendChild(renderMatrix(task));
+    parts.vectorHolder.textContent = '';
+    parts.vectorHolder.appendChild(renderVectors(task));
+  }
+
+  function updateAllCards() {
+    for (const task of state.set.tasks) updateCard(task);
+  }
+
+  /* ------------------------------ seed bar ------------------------------ */
+
+  function renderSeedBar() {
+    const bar = document.getElementById('seedbar');
+    const input = document.getElementById('seed-input');
+    input.value = state.seed;
+    document.getElementById('seed-meta').textContent =
+      'seed ' + state.seed + ' \u00b7 generator ' + state.set.generatorVersion + ' \u00b7 ' + state.set.prng;
+  }
+
+  function loadSeed(seed, options) {
+    const next = CORE.normalizeSeed(seed);
+    state.seed = next;
+    state.set = CORE.generate(next);
+    resetAnswers();
+    if (!options || options.keepDom !== true) {
+      renderAll();
+    }
+    setHash(next);
+    const input = document.getElementById('seed-input');
+    if (input) input.value = next;
+    renderSeedBar();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ------------------------------ board ------------------------------ */
+
+  function renderAll() {
+    const board = document.getElementById('cards');
+    board.textContent = '';
+    state.set.tasks.forEach(function (task, index) {
+      const card = buildCard(task, index);
+      board.appendChild(card);
+      updateCard(task);
+      renderFeedback(task, card._parts.feedback);
+      renderHints(task, card._parts.hints);
+    });
+    renderSeedBar();
+  }
+
+  /* ------------------------------ draft ------------------------------ */
+
+  function draftPayload() {
+    return {
+      savedAt: new Date().toISOString(),
+      seed: state.seed,
+      generatorVersion: state.set.generatorVersion,
+      answers: state.answers,
+    };
+  }
+
+  function saveDraft() {
+    const ok = writeStorage(STORAGE_KEY, JSON.stringify(draftPayload()));
+    setStatus(ok ? 'Draft saved in this browser.' : 'Browser storage is unavailable, so the draft could not be saved.');
+  }
+
+  function restoreDraft() {
+    const raw = readStorage(STORAGE_KEY);
+    if (!raw) {
+      setStatus('No draft found in this browser.');
+      return;
+    }
+    let draft = null;
+    try {
+      draft = JSON.parse(raw);
+    } catch (error) {
+      setStatus('The stored draft could not be read.');
+      return;
+    }
+    if (!draft || !draft.seed || !draft.answers) {
+      setStatus('The stored draft is incomplete.');
+      return;
+    }
+    state.seed = draft.seed;
+    state.set = CORE.generate(draft.seed, { version: draft.generatorVersion || CORE.GENERATOR_VERSION });
+    state.answers = {};
+    for (const task of state.set.tasks) {
+      const saved = draft.answers[task.id] || {};
+      state.answers[task.id] = {
+        rank: saved.rank || '',
+        columns: saved.columns || '',
+        reasoning: saved.reasoning || '',
+        hintsUsed: saved.hintsUsed || 0,
+        feedback: saved.feedback || null,
+      };
+    }
+    renderAll();
+    setHash(state.seed);
+    setStatus('Draft restored from this browser.');
+  }
+
+  function clearDraft() {
+    if (!window.confirm('Clear the draft stored in this browser? This cannot be undone.')) return;
+    removeStorage(STORAGE_KEY);
+    setStatus('Local draft cleared.');
+  }
+
+  /* ------------------------------ export ------------------------------ */
+
+  function exportRecord() {
+    const record = CORE.exportRecord(state.set, state.answers, { exportedAt: new Date().toISOString() });
+    const text = JSON.stringify(record, null, 2);
+    const safeSeed = state.seed.replace(/[^A-Za-z0-9_-]/g, '_');
+    const filename = 'rank-practice-' + safeSeed + '.json';
+    let url = '';
+    try {
+      url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+      const link = el('a', { href: url, download: filename });
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 2000);
+      setStatus('Learning record exported as ' + filename + '.');
+    } catch (error) {
+      setStatus('Export failed in this browser. You can still copy the seed and your notes.');
+    }
+  }
+
+  /* ------------------------------ status ------------------------------ */
+
+  let statusTimer = null;
+  function setStatus(message) {
+    const node = document.getElementById('status');
+    node.textContent = message;
+    if (statusTimer) window.clearTimeout(statusTimer);
+    statusTimer = window.setTimeout(function () {
+      node.textContent = '';
+    }, 6000);
+  }
+
+  /* ------------------------------ wiring ------------------------------ */
+
+  function copyLink() {
+    const url = window.location.href;
+    const done = function () {
+      setStatus('Set link copied.');
+    };
+    const fallback = function () {
+      setStatus('Clipboard unavailable. The seed link is in the address bar: ' + url);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function init() {
+    const fromHash = parseHash();
+    const seed = fromHash ? fromHash.seed : CORE.randomSeed();
+    state.seed = CORE.normalizeSeed(seed);
+    state.set = CORE.generate(state.seed, { version: (fromHash && fromHash.version) || CORE.GENERATOR_VERSION });
+    resetAnswers();
+    renderAll();
+    setHash(state.seed);
+
+    document.getElementById('load-seed').addEventListener('click', function () {
+      const value = document.getElementById('seed-input').value;
+      loadSeed(value || CORE.randomSeed());
+      setStatus('Loaded seed ' + state.seed + '.');
+    });
+    document.getElementById('seed-input').addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        loadSeed(document.getElementById('seed-input').value || CORE.randomSeed());
+        setStatus('Loaded seed ' + state.seed + '.');
+      }
+    });
+    document.getElementById('new-set').addEventListener('click', function () {
+      loadSeed(CORE.randomSeed());
+      setStatus('New question set generated.');
+    });
+    document.getElementById('copy-link').addEventListener('click', copyLink);
+
+    document.getElementById('save-draft').addEventListener('click', saveDraft);
+    document.getElementById('restore-draft').addEventListener('click', restoreDraft);
+    document.getElementById('clear-draft').addEventListener('click', clearDraft);
+    document.getElementById('export-record').addEventListener('click', exportRecord);
+    document.getElementById('print-sheet').addEventListener('click', function () {
+      window.print();
+    });
+
+    if (!state.storageOk) {
+      setStatus('Browser storage is unavailable. Drafts will not persist, but the lab still works.');
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  window.RPLApp = {
+    state: state,
+    loadSeed: loadSeed,
+    saveDraft: saveDraft,
+    restoreDraft: restoreDraft,
+    exportRecord: exportRecord,
+  };
+})();
+
+</script>
+</body>
+</html>
